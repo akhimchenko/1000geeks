@@ -3,9 +3,12 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\CodeRepository")
+ * @UniqueEntity("code")
  */
 class Code
 {
@@ -17,7 +20,7 @@ class Code
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=10)
+     * @ORM\Column(name="code", type="string", length=10, unique=true)
      */
     private $code;
 
@@ -25,6 +28,11 @@ class Code
      * @ORM\Column(type="datetime")
      */
     private $created;
+
+    public function __construct()
+    {
+        $this->created = new \DateTime();
+    }
 
     public function getId(): ?int
     {
