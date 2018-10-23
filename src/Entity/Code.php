@@ -27,11 +27,11 @@ class Code
     /**
      * @ORM\Column(type="datetime")
      */
-    private $created;
+    private $date;
 
     public function __construct()
     {
-        $this->created = new \DateTime();
+        $this->date = new \DateTime();
     }
 
     public function getId(): ?int
@@ -51,14 +51,14 @@ class Code
         return $this;
     }
 
-    public function getCreated(): ?\DateTimeInterface
+    public function getDate(): ?\DateTimeInterface
     {
-        return $this->created;
+        return $this->date;
     }
 
-    public function setCreated(\DateTimeInterface $created): self
+    public function setDate(\DateTimeInterface $date): self
     {
-        $this->created = $created;
+        $this->date = $date;
 
         return $this;
     }
