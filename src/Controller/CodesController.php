@@ -5,8 +5,11 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use App\Entity\Code;
 use App\Utils\CodeUtils;
+use App\Utils\XlsUtils;
 
 class CodesController extends AbstractController
 {
@@ -25,10 +28,11 @@ class CodesController extends AbstractController
      * @param Request $request
      * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
     public function generate(Request $request)
     {
-        //! TODO: catch MethodNotAllowedHttpException
+        //! TODO: catch MethodNotAllowedHttpException when not POST
         $nb = $request->request->get('nb') ?? 1;
 
         $codes = CodeUtils::generateCodes(
@@ -37,15 +41,37 @@ class CodesController extends AbstractController
             $nb
         );
 
-//        for ($i = 1; $i <= $nb; $i++) {
-//            $code = new Code();
-//            $codeString = CodeUtils::generateCode($this->getDoctrine()->getRepository(Code::class));
-//            $code->setCode($codeString);
-//            $codes[] = $codeString;
-//            $entityManager->persist($code);
-//            $entityManager->flush();
-//        }
-
-        return $this->json(['Codes' => $codes]);
+        if ($request->request->get('export') != null) {
+            switch ($request->request->get('export')) {
+                case 'xls':
+                    try {
+                        $file = XlsUtils::writeFile($codes);
+                    } catch (\Exception $e) {
+                        $response = new Response();
+                        $response->setContent('Internal error: ' . $e->getMessage());
+                        $response->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR);
+                        $response->send();
+                    }
+                    $response = new BinaryFileResponse($file);
+                    $response->headers->set('Content-Type', 'application/vnd.ms-excel');
+                    $response->headers->set('Content-Length', filesize($file));
+                    // Doesn't work
+//                    $response->setContentDisposition(
+//                        ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+//                        'codes.xls'
+//                    );
+                    header('Content-Disposition: attachment; filename="codes.xls"');
+                    $response->sendContent();
+                    exit;
+                default:
+                    $response = new Response();
+                    $response->setContent('Unknown export format');
+                    $response->setStatusCode(Response::HTTP_BAD_REQUEST);
+                    $response->send();
+                    break;
+            }
+        } else {
+            return $this->json(['Codes' => $codes]);
+        }
     }
 }
