@@ -76,7 +76,7 @@ class CodesController extends AbstractController
     }
 
     /**
-     * @Route("/get/{code}", name="get", methods={"GET"})
+     * @Route("/{code}", name="get", methods={"GET"})
      * @param string $code
      * @return object|\Symfony\Component\HttpFoundation\JsonResponse
      */
