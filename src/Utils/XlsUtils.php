@@ -2,7 +2,6 @@
 
 namespace App\Utils;
 
-use mysql_xdevapi\Exception;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xls;
 

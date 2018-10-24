@@ -32,7 +32,6 @@ class CodesController extends AbstractController
      */
     public function generate(Request $request)
     {
-        //! TODO: catch MethodNotAllowedHttpException when not POST
         $nb = $request->request->get('nb') ?? 1;
 
         $codes = CodeUtils::generateCodes(
@@ -62,7 +61,7 @@ class CodesController extends AbstractController
 //                    );
                     header('Content-Disposition: attachment; filename="codes.xls"');
                     $response->sendContent();
-                    exit;
+                    break;
                 default:
                     $response = new Response();
                     $response->setContent('Unknown export format');
@@ -70,8 +69,32 @@ class CodesController extends AbstractController
                     $response->send();
                     break;
             }
+            return null;
         } else {
             return $this->json(['Codes' => $codes]);
         }
     }
+
+    /**
+     * @Route("/get/{code}", name="get", methods={"GET"})
+     * @param string $code
+     * @return object|\Symfony\Component\HttpFoundation\JsonResponse
+     */
+    public function get(string $code)
+    {
+        $codeData = $this->getDoctrine()->getRepository(Code::class)->findOneBy(
+            ['code' => $code]
+        );
+        if (empty($codeData)) {
+            $response = new Response();
+            $response->setStatusCode(Response::HTTP_NOT_FOUND);
+            $response->send();
+        }
+        return $this->json([
+            'id' => $codeData->getId(),
+            'code' => $codeData->getCode(),
+            'date' => $codeData->getDate()->setTimezone(new \DateTimeZone("UTC")),
+        ]);
+    }
+
 }
