@@ -1,7 +1,17 @@
 # 1000geeks
 
-Развёртывание:
+## Deployment
 
-Сделать .env на основе .env.dist - ввести в DATABASE_URL параметры своей базы. Создать базу, если надо.
-Скачать компоненты - composer install
-Запустить миграции - bin/console doctrine:migrations:migrate
+Create .env file based on .env.dist - enter your database params. Create a new database if necessary.
+
+Install modules with composer in project directory:
+
+```
+composer install
+```
+
+Run migrations:
+
+```
+bin/console doctrine:migrations:migrate
+```
